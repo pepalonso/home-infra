@@ -2,3 +2,4 @@
 venv/
 migrations/
 firebase-key.json
+app/__pycache__/

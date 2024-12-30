@@ -13,7 +13,8 @@ services:
       - db
 
   db:
-    image: mariadb:latest
+    build:
+      context: ./db
     environment:
       MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: todo_db

@@ -3,4 +3,5 @@ Flask-SQLAlchemy
 Flask-Migrate
 PyMySQL
 firebase-admin
-python-dotenv   
+python-dotenv
+flask_cors

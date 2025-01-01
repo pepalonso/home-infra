@@ -12,9 +12,9 @@ def create_app():
     app = Flask(__name__)
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
-    app.config["DEBUG"] = True
+    app.config["DEBUG"] = True  # Change to False in production
 
-    app.logger.setLevel(logging.DEBUG)
+    app.logger.setLevel(logging.DEBUG)  # Change to INFO in production
 
     db.init_app(app)
     migrate.init_app(app, db)

@@ -13,6 +13,7 @@ class Task(db.Model):
     deadline = db.Column(db.DateTime, nullable=True)
     importance = db.Column(db.Integer, default=0, nullable=True)
     is_completed = db.Column(db.Boolean, default=False, nullable=False)
+    section = db.Column(db.Integer, db.ForeignKey("section.id"), nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(
         db.DateTime, onupdate=lambda: datetime.now(timezone.utc), nullable=True
@@ -56,4 +57,24 @@ class User(db.Model):
         }
         return {
             key: value for key, value in user_dictionary.items() if value is not null
+        }
+
+
+class Section(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255), nullable=False)
+    user = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    tasks = db.relationship("Task", backref="task_section")
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    def to_dict(self):
+        """Convert Section object to a dictionary."""
+        section_dictionary = {
+            "id": self.id,
+            "name": self.name,
+            "user": self.user,
+            "created_at": self.created_at.isoformat(),
+        }
+        return {
+            key: value for key, value in section_dictionary.items() if value is not null
         }

@@ -1,12 +1,14 @@
 services:
   api:
     build: .
+    image: pepalonso/tasks-api:latest
     ports:
       - "5000:5000"
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
       - SECRET_KEY=${SECRET_KEY}
+      - PYTHONUNBUFFERED=1
     volumes:
       - .:/app
     depends_on:

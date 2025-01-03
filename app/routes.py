@@ -34,6 +34,30 @@ def get_tasks():
     return jsonify([task.to_dict() for task in tasks]), 200
 
 
+@main.route("/tasks/<int:section_id>", methods=["GET"])
+def get_tasks_by_section(section_id):
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return jsonify({"error": "Missing token"}), 401
+    firebase_token = auth_header.split(" ")[1]
+    user_id = verify_token(firebase_token)
+    if not user_id:
+        return jsonify({"error": "Invalid or expired token"}), 401
+
+    tasks = (
+        Task.query.filter_by(user_id=user_id)
+        .filter_by(section=section_id)
+        .filter(Task.is_completed == false())
+        .order_by(
+            Task.importance.desc(),
+            case((Task.deadline.is_(None), 1), else_=0),
+            (Task.deadline.asc()),
+        )
+        .all()
+    )
+    return jsonify([task.to_dict() for task in tasks]), 200
+
+
 @main.route("/task", methods=["POST"])
 def add_task():
     auth_header = request.headers.get("Authorization")
@@ -65,6 +89,7 @@ def add_task():
         description=data.get("description", None),
         deadline=data.get("deadline", None),
         importance=data.get("importance", None),
+        section=data.get("section", None),
     )
     db.session.add(new_task)
     db.session.commit()
@@ -99,6 +124,7 @@ def update_task(task_number):
     task.description = data.get("description", task.description)
     task.is_completed = data.get("is_completed", task.is_completed)
     task.deadline = data.get("deadline", task.deadline)
+    task.section = data.get("section", task.section)
     task.importance = data.get("importance", task.importance)
 
     db.session.commit()
@@ -231,7 +257,7 @@ def delete_section(section_id):
     if not section:
         return jsonify({"error": "Section not found"}), 404
 
-    Section.query.get(section_id).delete()
+    db.session.delete(section)
     db.session.commit()
 
     return jsonify({"message": "Section deleted"}), 200

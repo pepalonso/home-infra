@@ -30,6 +30,7 @@ class Task(db.Model):
             "deadline": self.deadline.isoformat() if self.deadline else None,
             "importance": self.importance,
             "is_completed": self.is_completed,
+            "section": self.section,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }

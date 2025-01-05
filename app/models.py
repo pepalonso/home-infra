@@ -13,6 +13,7 @@ class Task(db.Model):
     deadline = db.Column(db.DateTime, nullable=True)
     importance = db.Column(db.Integer, default=0, nullable=True)
     is_completed = db.Column(db.Boolean, default=False, nullable=False)
+    is_deleted = db.Column(db.Boolean, default=False, nullable=False)
     section = db.Column(db.Integer, db.ForeignKey("section.id"), nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(
@@ -78,4 +79,39 @@ class Section(db.Model):
         }
         return {
             key: value for key, value in section_dictionary.items() if value is not null
+        }
+
+
+class ArchivedTasks(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    task_number = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    deadline = db.Column(db.DateTime, nullable=True)
+    importance = db.Column(db.Integer, default=0, nullable=True)
+    was_completed = db.Column(db.Boolean, nullable=False)
+    section = db.Column(db.Integer, db.ForeignKey("section.id"), nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False)
+    archived_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    def to_dict(self):
+        """Convert ArchivedTasks object to a dictionary."""
+        archived_tasks_dictionary = {
+            "id": self.id,
+            "task_number": self.task_number,
+            "user_id": self.user_id,
+            "title": self.title,
+            "description": self.description,
+            "deadline": self.deadline.isoformat() if self.deadline else None,
+            "importance": self.importance,
+            "was_completed": self.was_completed,
+            "section": self.section,
+            "created_at": self.created_at.isoformat(),
+            "archived_at": self.archived_at.isoformat(),
+        }
+        return {
+            key: value
+            for key, value in archived_tasks_dictionary.items()
+            if value is not null
         }

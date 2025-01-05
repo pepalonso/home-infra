@@ -1,4 +1,5 @@
 from ast import main
+from hmac import new
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 from sqlalchemy import case, false
@@ -143,10 +144,24 @@ def new_task_number():
     tasks = Task.query.filter_by(user_id=user_id)
     last_task = tasks.order_by(Task.task_number.desc()).first()
     new_task_number = last_task.task_number + 1 if last_task else 1
+
+    last_archived_task = (
+        Task.query.filter_by(user_id=user_id)
+        .order_by()
+        .order_by(Task.task_number.desc())
+        .first()
+    )
+    new_archived_task_number = (
+        last_archived_task.task_number + 1 if last_archived_task else 1
+    )
+
+    if new_task_number < new_archived_task_number:
+        new_task_number = new_archived_task_number
+
     return jsonify({"new_task_number": new_task_number}), 200
 
 
-@main.route("/delete/<int:task_number>", methods=["DELETE"])
+@main.route("/task/<int:task_number>", methods=["DELETE"])
 def delete_task(task_number):
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
@@ -162,7 +177,7 @@ def delete_task(task_number):
     if not task:
         return jsonify({"error": "Task not found"}), 404
 
-    Task.query.filter_by(id=task.id).delete()
+    task.is_completed = True
     db.session.commit()
     return jsonify({"message": "Task deleted"}), 200
 

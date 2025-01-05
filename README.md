@@ -4,7 +4,7 @@
 ```bash
     docker ps
     docker exec -it <db-container> bash
-    mysql -u todo_user -p todo_db
+    mariadb -u todo_user -p todo_db
 ```
 - If a change has been made to the models.py then either run 
 ```bash
@@ -13,7 +13,7 @@
     flask db init
     flask db migrate
     flask db upgrade
-    ```
+```
 
 
 - To activate the python virtual enviroment for installing dependencies localy

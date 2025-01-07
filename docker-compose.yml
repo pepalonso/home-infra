@@ -49,3 +49,5 @@ services:
       timeout: 10s
       retries: 3
     restart: unless-stopped
+    depends_on: 
+      - api

@@ -1,5 +1,6 @@
 import firebase_admin
 from firebase_admin import credentials, auth
+from pymysql import IntegrityError
 
 from app.models import User
 from . import db
@@ -27,13 +28,12 @@ def verify_token(token):
         user = User.query.filter_by(firebase_uid=firebase_uid).first()
         if not user:
             user = User(firebase_uid=firebase_uid, email=email, name=name)
+            db.session.add(user)
             try:
-                db.session.add(user)
                 db.session.commit()
-            except Exception as e:
-                print(f"Error creating user: {e}")
-                return None
-
+            except IntegrityError:
+                db.session.rollback()
+                user = User.query.filter_by(firebase_uid=firebase_uid).first()
         return user.id
     except Exception as e:
         print(f"Error verifying token: {e}")

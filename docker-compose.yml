@@ -52,3 +52,6 @@ services:
     restart: unless-stopped
     depends_on: 
       - api
+
+volumes:
+  db_data:

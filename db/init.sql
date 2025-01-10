@@ -15,7 +15,8 @@ BEGIN
         importance, 
         was_completed, 
         section, 
-        created_at)
+        created_at, 
+        archived_at)
     SELECT 
         task_number, 
         user_id, 
@@ -25,7 +26,8 @@ BEGIN
         importance, 
         is_completed AS was_completed, 
         section, 
-        created_at 
+        created_at
+        updated_at AS archived_at
     FROM task
     WHERE is_completed = 1 OR is_deleted = 1;
 
@@ -38,5 +40,5 @@ DELIMITER ;
 
 
 CREATE EVENT IF NOT EXISTS ARCHIVE_TASKS
-ON SCHEDULE EVERY 1 DAY
+ON SCHEDULE EVERY 1 HOUR
 DO CALL archive_tasks();

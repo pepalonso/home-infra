@@ -4,4 +4,4 @@ migrations/
 firebase-key.json
 app/__pycache__/
 
-nginx/logs
+nginx/logs/

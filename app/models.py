@@ -93,7 +93,7 @@ class ArchivedTasks(db.Model):
     was_completed = db.Column(db.Boolean, nullable=False)
     section = db.Column(db.Integer, db.ForeignKey("section.id"), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False)
-    archived_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    archived_at = db.Column(db.DateTime, nullable=False)
 
     def to_dict(self):
         """Convert ArchivedTasks object to a dictionary."""

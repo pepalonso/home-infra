@@ -1,35 +1,11 @@
 services:
+  api:
+    command: flask run --host=0.0.0.0 --port=5000
+    environment:
+      - FLASK_APP=app:create_app
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+
   nginx:
     entrypoint: ["echo", "Nginx is disabled in development"]
     restart: "no"
-
-  api:
-    build: .
-    image: pepalonso/tasks-api:latest
-    ports:
-      - "5000:5000"
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
-      - SECRET_KEY=${SECRET_KEY}
-      - PYTHONUNBUFFERED=1
-      - FLASK_ENV=development
-    volumes:
-      - .:/app
-    depends_on:
-      - db
-    restart: unless-stopped
-
-  db:
-    build:
-      context: ./db
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: todo_db
-      MYSQL_USER: todo_user
-      MYSQL_PASSWORD: secure_password
-    ports:
-      - "3306:3306"
-    volumes:
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-    restart: unless-stopped

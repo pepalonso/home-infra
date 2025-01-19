@@ -4,6 +4,7 @@ from weakref import ref
 from flask import Blueprint, jsonify, request
 from flask_cors import CORS
 import openai
+from sqlalchemy import false
 
 from app.firebase_auth import verify_token
 from app.models import AiSummaryExecutions, Section, Task
@@ -17,7 +18,7 @@ CORS(main)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 client = openai.OpenAI()
 
-MAX_RETRIES = 6
+MAX_RETRIES = 4
 
 
 @main.route("/")
@@ -78,7 +79,9 @@ def generate_report():
     if last_user_report:
         return jsonify({"report": last_user_report.summary})
 
-    tasks = Task.query.filter_by(user_id=user_id).all()
+    tasks = (
+        Task.query.filter_by(user_id=user_id).filter(Task.is_completed == false()).all()
+    )
     sections = Section.query.filter_by(user=user_id).all()
     try:
         prompt = "Tasques:\n"
@@ -145,7 +148,9 @@ def refresh_report():
     if last_user_reports > MAX_RETRIES:
         return jsonify({"error": "Too many requests"}), 429
 
-    tasks = Task.query.filter_by(user_id=user_id).all()
+    tasks = (
+        Task.query.filter_by(user_id=user_id).filter(Task.is_completed == false()).all()
+    )
     sections = Section.query.filter_by(user=user_id).all()
     try:
         prompt = "Tasques:\n"

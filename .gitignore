@@ -3,6 +3,7 @@ venv/
 migrations/
 firebase-key.json
 app/__pycache__/
+app/routes/__pycache__/
 
 nginx/logs/
 

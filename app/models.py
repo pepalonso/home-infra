@@ -115,3 +115,24 @@ class ArchivedTasks(db.Model):
             for key, value in archived_tasks_dictionary.items()
             if value is not null
         }
+
+
+class AiSummaryExecutions(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    summary = db.Column(db.JSON, nullable=False)
+    generated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    def to_dict(self):
+        """Convert AiSummaryExecutions object to a dictionary."""
+        ai_summary_executions_dictionary = {
+            "id": self.id,
+            "user_id": self.user_id,
+            "summary": self.summary,
+            "generated_at": self.generated_at.isoformat(),
+        }
+        return {
+            key: value
+            for key, value in ai_summary_executions_dictionary.items()
+            if value is not null
+        }

@@ -174,28 +174,27 @@ def generate_ai_summary(user_id, last_user_report=None):
 
         if last_user_report:
             prompt += f"\n#### Last Report on date{last_user_report.generated_at}:\n{last_user_report.summary}\n"
-    except Exception as e:
-        print(e)
+    except Exception:
         raise
 
     system_prompt = """
-    You are a productivity assistant designed to generate concise, engaging, and motivational summaries for users.
+    You are a productivity assistant designed to generate concise, engaging, and motivational summaries for users in **Catalan**.
     - Highlight recent accomplishments and trends, such as productivity improvements, task streaks, or records.
     - Avoid repeating feedback already provided in the last report.
     - Provide constructive feedback if the user has low productivity, but always frame it in a positive, encouraging way.
     - Conclude with a preview of the user's upcoming tasks, emphasizing urgency and importance.
     - End the summary with either a motivational quote or a fun fact related to the user's tasks, to leave the user inspired or entertained.
-    - When giving the answer to the user, translate it to Catalan
+    - Preserve the structure and formatting of the output, with subtitles and bullet points where applicable.
     """
 
     user_prompt = f"""
-    ### User's Task Data:
+    ### Dades de tasques de l'usuari:
     {prompt}
-    Generate a productivity summary with:
-    - 1 to 4 pieces of feedback highlighting recent accomplishments, trends, or areas for improvement.
-    - A preview of upcoming tasks based on their importance and deadlines.
-    - End the summary with a motivational quote or a fun fact that aligns with the user's recent tasks.
-    - The generated summary should be engaging, concise, motivational, and no longer than 10 lines.
+    Genera un resum de productivitat amb:
+    - De 1 a 4 punts destacant assoliments recents, tendències o àrees de millora.
+    - Una previsió de les tasques pendents basant-se en la seva importància i terminis.
+    - Acaba el resum amb una cita motivadora o una curiositat que s'alineï amb les tasques recents de l'usuari.
+    - El resum generat ha de ser atractiu, concís, motivador i no ha de superar les 10 línies.
     """
 
     try:
@@ -208,6 +207,5 @@ def generate_ai_summary(user_id, last_user_report=None):
         )
         return completion.choices[0].message.content
 
-    except Exception as e:
-        print(f"Error generating AI summary: {e}")
+    except Exception:
         raise

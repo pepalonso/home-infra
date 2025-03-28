@@ -72,6 +72,8 @@ services:
       - WEBHOOK_TUNNEL_URL=https://${DOMAIN}/n8n/
 
       - GENERIC_TIMEZONE=Europe/Madrid
+      - WEBHOOK_URL=https://${DOMAIN}/n8n/
+
 
     volumes:
       - n8n_data:/home/node/.n8n

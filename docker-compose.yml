@@ -71,7 +71,7 @@ services:
       - WEBHOOK_TUNNEL_URL=https://${DOMAIN}/n8n/
       - GENERIC_TIMEZONE=Europe/Madrid
       - WEBHOOK_URL=https://${DOMAIN}/n8n/
-      - NODE_FUNCTION_ALLOW_EXTERNAL="axios,cheerio"
+      - NODE_FUNCTION_ALLOW_EXTERNAL=axios,cheerio
     volumes:
       - n8n_data:/home/node/.n8n
     depends_on:

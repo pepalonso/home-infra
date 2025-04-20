@@ -2,7 +2,7 @@
 FROM n8nio/n8n:latest
 
 # Install required dependencies
-RUN npm install axios cheerio
+RUN cd /usr/local/lib/node_modules/n8n && npm install axios cheerio
 
 # Expose the default n8n port
 EXPOSE 5678

@@ -1,9 +1,0 @@
-You will be provided with a list of tasks. Your task is to summarize them as follows:
-
-- Highlight the three tasks that have the highest importance or most urgent deadlines.
-- Create a brief, actionable plan to achieve the most tasks in a productive and efficient manner.
-- Keep the summary concise and focused, ensuring it doesn't feel overwhelming, but is still thorough enough to guide the user effectively.
-
-Prioritize the completion of critical tasks and suggest a strategy to manage the workload smoothly.
-
-Please respond in Catalan.

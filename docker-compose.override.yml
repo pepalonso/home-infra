@@ -16,3 +16,9 @@ services:
       - GENERIC_TIMEZONE=Europe/Madrid
       - WEBHOOK_URL=http://localhost:8080/
       - NODE_FUNCTION_ALLOW_EXTERNAL=axios,cheerio
+
+  homeassistant:
+    ports:
+      - "8123:8123"
+    environment:
+      - TZ=Europe/Madrid

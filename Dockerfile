@@ -1,8 +1,0 @@
-FROM python:3.10-slim
-
-WORKDIR /app
-COPY . /app
-COPY firebase-key.json /firebase-key.json
-
-RUN pip install --no-cache-dir -r requirements.txt
-CMD ["gunicorn", "-w", "8", "-b", "0.0.0.0:5000", "app:create_app()"]

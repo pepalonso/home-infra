@@ -46,7 +46,8 @@ services:
     volumes:
       - homeassistant_data:/config
       - ./config/homeassistant/configuration.yaml:/config/configuration.yaml:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - default
     environment:
       - TZ=Europe/Madrid
     depends_on:

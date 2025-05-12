@@ -12,8 +12,8 @@ services:
       - ./certs:/etc/nginx/certs
     environment:
       - DOMAIN=${DOMAIN:-localhost}
-      - API_HOST=${API_HOST:-api}
-      - API_PORT=${API_PORT:-5000}
+      - HA_DOMAIN=${HA_DOMAIN:-ha.localhost}
+      - N8N_DOMAIN=${N8N_DOMAIN:-n8n.localhost}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 30s
@@ -31,12 +31,25 @@ services:
       - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
       - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
       - N8N_RUNNERS_ENABLED=true
-      - N8N_PATH=/n8n/
-      - WEBHOOK_TUNNEL_URL=https://${DOMAIN}/n8n/
+      - N8N_PATH=/
+      - WEBHOOK_TUNNEL_URL=https://${N8N_DOMAIN}/
       - GENERIC_TIMEZONE=Europe/Madrid
-      - WEBHOOK_URL=https://${DOMAIN}/n8n/
+      - WEBHOOK_URL=https://${N8N_DOMAIN}/
       - NODE_FUNCTION_ALLOW_EXTERNAL=axios,cheerio
     volumes:
       - n8n_data:/home/node/.n8n
+
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    restart: unless-stopped
+    volumes:
+      - homeassistant_data:/config
+    environment:
+      - TZ=Europe/Madrid
+    depends_on:
+      - nginx
+
 volumes:
   n8n_data:
+  homeassistant_data:

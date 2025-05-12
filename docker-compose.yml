@@ -45,16 +45,10 @@ services:
     restart: unless-stopped
     volumes:
       - homeassistant_data:/config
+      - ./config/homeassistant/configuration.yaml:/config/configuration.yaml:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     environment:
       - TZ=Europe/Madrid
-      - HASSIO_EXTERNAL_URL=https://ha.palonso-pi.duckdns.org
-      - USE_X_FORWARDED_FOR=true
-      - TRUSTED_PROXIES=172.16.0.0/12
-      - USE_X_FORWARDED_HOST=true
-      - HTTP_PROXY=true
-      - HTTP_USE_X_FORWARDED_FOR=true
-      - HTTP_TRUSTED_PROXIES=172.16.0.0/12
-      - HTTP_USE_X_FORWARDED_HOST=true
     depends_on:
       - nginx
 

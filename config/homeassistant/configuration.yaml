@@ -2,10 +2,8 @@
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 172.22.0.0/16
-  use_x_forwarded_host: true
-  ssl_certificate: /etc/letsencrypt/live/palonso-pi.duckdns.org/fullchain.pem
-  ssl_key: /etc/letsencrypt/live/palonso-pi.duckdns.org/privkey.pem
+    - 172.0.0.0/8
+  ip_ban_enabled: false
 
 # Basic configuration
 homeassistant:

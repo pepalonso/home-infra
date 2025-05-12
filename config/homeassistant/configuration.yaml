@@ -2,8 +2,15 @@
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 172.0.0.0/8
+    - 172.30.0.2 # Nginx
+    - 172.30.0.0/16 # Entire subnet
+    - 127.0.0.1
+    - ::1
   ip_ban_enabled: false
+  cors_allowed_origins:
+    - https://ha.palonso-pi.duckdns.org
+  server_host: 0.0.0.0
+  server_port: 8123
 
 # Basic configuration
 homeassistant:
@@ -11,3 +18,4 @@ homeassistant:
   unit_system: metric
   time_zone: Europe/Madrid
   external_url: https://ha.palonso-pi.duckdns.org
+  internal_url: http://172.30.0.4:8123

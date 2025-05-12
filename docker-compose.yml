@@ -20,6 +20,9 @@ services:
       timeout: 10s
       retries: 3
     restart: unless-stopped
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.2
 
   n8n:
     build:
@@ -38,6 +41,9 @@ services:
       - NODE_FUNCTION_ALLOW_EXTERNAL=axios,cheerio
     volumes:
       - n8n_data:/home/node/.n8n
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.3
 
   homeassistant:
     image: ghcr.io/home-assistant/home-assistant:stable
@@ -46,12 +52,21 @@ services:
     volumes:
       - homeassistant_data:/config
       - ./config/homeassistant/configuration.yaml:/config/configuration.yaml:ro
-    networks:
-      - default
     environment:
       - TZ=Europe/Madrid
     depends_on:
       - nginx
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.4
+
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+          gateway: 172.30.0.1
 
 volumes:
   n8n_data:

@@ -47,6 +47,10 @@ services:
       - homeassistant_data:/config
     environment:
       - TZ=Europe/Madrid
+      - HASSIO_EXTERNAL_URL=https://ha.palonso-pi.duckdns.org
+      - USE_X_FORWARDED_FOR=true
+      - TRUSTED_PROXIES=172.19.0.0/16
+      - USE_X_FORWARDED_HOST=true
     depends_on:
       - nginx
 

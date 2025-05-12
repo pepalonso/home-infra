@@ -1,0 +1,15 @@
+# Home Assistant Configuration
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 172.22.0.0/16
+  use_x_forwarded_host: true
+  ssl_certificate: /etc/letsencrypt/live/palonso-pi.duckdns.org/fullchain.pem
+  ssl_key: /etc/letsencrypt/live/palonso-pi.duckdns.org/privkey.pem
+
+# Basic configuration
+homeassistant:
+  name: Home
+  unit_system: metric
+  time_zone: Europe/Madrid
+  external_url: https://ha.palonso-pi.duckdns.org

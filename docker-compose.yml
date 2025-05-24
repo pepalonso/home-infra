@@ -90,6 +90,8 @@ services:
       - netdata_data:/var/lib/netdata
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
+      - NETDATA_BASIC_AUTH_USER=${NETDATA_BASIC_AUTH_USER}
+      - NETDATA_BASIC_AUTH_PASSWORD=${NETDATA_BASIC_AUTH_PASSWORD}
     networks:
       app_net:
         ipv4_address: 172.30.0.6

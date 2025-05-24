@@ -10,6 +10,7 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - ./nginx/logs:/var/log/nginx
       - ./certs:/etc/nginx/certs
+      - ./nginx/.htpasswd:/etc/nginx/.htpasswd:ro
     environment:
       - DOMAIN=${DOMAIN:-localhost}
       - HA_DOMAIN=${HA_DOMAIN:-ha.localhost}

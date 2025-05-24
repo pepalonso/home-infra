@@ -60,6 +60,40 @@ services:
       app_net:
         ipv4_address: 172.30.0.4
 
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    volumes:
+      - vaultwarden_data:/data
+    environment:
+      - SIGNUPS_ALLOWED=false
+      - DOMAIN=https://${VAULTWARDEN_DOMAIN}
+      - WEBSOCKET_ENABLED=true
+      - LOG_LEVEL=info
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.5
+
+  netdata:
+    image: netdata/netdata:latest
+    container_name: netdata
+    restart: unless-stopped
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - netdata_data:/var/lib/netdata
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.6
+
 networks:
   app_net:
     driver: bridge
@@ -71,3 +105,5 @@ networks:
 volumes:
   n8n_data:
   homeassistant_data:
+  vaultwarden_data:
+  netdata_data:

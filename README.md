@@ -8,6 +8,11 @@
 
 - In development
 
+n8n: http://localhost:8080
+Home Assistant: http://localhost:8123
+Vaultwarden: http://localhost:8081
+Netdata: http://localhost:19999
+
 ```bash
     docker-compose up
 

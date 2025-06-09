@@ -9,3 +9,5 @@ nginx/logs/
 nginx/.htpasswd
 
 certs/
+
+portfolio/node_modules/

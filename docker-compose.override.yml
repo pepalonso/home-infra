@@ -1,11 +1,35 @@
 services:
-  api:
-    command: flask run --host=0.0.0.0 --port=5000
-    environment:
-      - FLASK_APP=app:create_app
-      - FLASK_ENV=development
-      - FLASK_DEBUG=1
-
   nginx:
     entrypoint: ["echo", "Nginx is disabled in development"]
     restart: "no"
+
+  n8n:
+    ports:
+      - "8080:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_PATH=/
+      - WEBHOOK_TUNNEL_URL=http://localhost:8080/
+      - GENERIC_TIMEZONE=Europe/Madrid
+      - WEBHOOK_URL=http://localhost:8080/
+      - NODE_FUNCTION_ALLOW_EXTERNAL=axios,cheerio
+
+  homeassistant:
+    ports:
+      - "8123:8123"
+    environment:
+      - TZ=Europe/Madrid
+
+  vaultwarden:
+    ports:
+      - "8081:80"
+    environment:
+      - DOMAIN=http://localhost:8081
+      - SIGNUPS_ALLOWED=true # Enable signups during development
+
+  netdata:
+    ports:
+      - "19999:19999"

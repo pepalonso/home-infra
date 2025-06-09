@@ -1,61 +1,29 @@
 services:
-  api:
-    build: .
-    image: pepalonso/tasks-api:latest
-    ports:
-      - "5000:5000"
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
-      - SECRET_KEY=${SECRET_KEY}
-      - PYTHONUNBUFFERED=1
-
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-    volumes:
-      - .:/app
-    depends_on:
-      - db
-    restart: unless-stopped
-
-  db:
-    build:
-      context: ./db
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: todo_db
-      MYSQL_USER: todo_user
-      MYSQL_PASSWORD: secure_password
-    ports:
-      - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-    restart: unless-stopped
-
   nginx:
     image: nginx:latest
     container_name: nginx
     ports:
-    - "80:80"
-    - "443:443"
+      - "80:80"
+      - "443:443"
     volumes:
-    - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    - /etc/letsencrypt:/etc/letsencrypt:ro
-    - ./nginx/logs:/var/log/nginx
-    - ./certs:/etc/nginx/certs
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./nginx/logs:/var/log/nginx
+      - ./certs:/etc/nginx/certs
+      - ./nginx/.htpasswd:/etc/nginx/.htpasswd:ro
     environment:
-    - DOMAIN=${DOMAIN:-localhost}
-    - API_HOST=${API_HOST:-api}
-    - API_PORT=${API_PORT:-5000}
+      - DOMAIN=${DOMAIN:-localhost}
+      - HA_DOMAIN=${HA_DOMAIN:-ha.localhost}
+      - N8N_DOMAIN=${N8N_DOMAIN:-n8n.localhost}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 30s
       timeout: 10s
       retries: 3
     restart: unless-stopped
-    depends_on: 
-      - api
-
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.2
 
   n8n:
     build:
@@ -67,15 +35,78 @@ services:
       - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
       - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
       - N8N_RUNNERS_ENABLED=true
-      - N8N_PATH=/n8n/
-      - WEBHOOK_TUNNEL_URL=https://${DOMAIN}/n8n/
+      - N8N_PATH=/
+      - WEBHOOK_TUNNEL_URL=https://${N8N_DOMAIN}/
       - GENERIC_TIMEZONE=Europe/Madrid
-      - WEBHOOK_URL=https://${DOMAIN}/n8n/
+      - WEBHOOK_URL=https://${N8N_DOMAIN}/
       - NODE_FUNCTION_ALLOW_EXTERNAL=axios,cheerio
     volumes:
       - n8n_data:/home/node/.n8n
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.3
+
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    restart: unless-stopped
+    volumes:
+      - homeassistant_data:/config
+      - ./config/homeassistant/configuration.yaml:/config/configuration.yaml:ro
+    environment:
+      - TZ=Europe/Madrid
     depends_on:
-      - db
+      - nginx
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.4
+
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    volumes:
+      - vaultwarden_data:/data
+    environment:
+      - SIGNUPS_ALLOWED=false
+      - DOMAIN=https://${VAULTWARDEN_DOMAIN}
+      - WEBSOCKET_ENABLED=true
+      - LOG_LEVEL=info
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.5
+
+  netdata:
+    image: netdata/netdata:latest
+    container_name: netdata
+    restart: unless-stopped
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - netdata_data:/var/lib/netdata
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - NETDATA_BASIC_AUTH_USER=${NETDATA_BASIC_AUTH_USER}
+      - NETDATA_BASIC_AUTH_PASSWORD=${NETDATA_BASIC_AUTH_PASSWORD}
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.6
+
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+          gateway: 172.30.0.1
+
 volumes:
-  db_data:
   n8n_data:
+  homeassistant_data:
+  vaultwarden_data:
+  netdata_data:

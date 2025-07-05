@@ -3,8 +3,8 @@ services:
     image: nginx:latest
     container_name: nginx
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
+      - "8443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
@@ -96,6 +96,20 @@ services:
     networks:
       app_net:
         ipv4_address: 172.30.0.6
+
+  trmnl:
+    image: ghcr.io/usetrmnl/terminus:latest
+    container_name: trmnl
+    restart: unless-stopped
+    volumes:
+      - trmnl_data:/data
+    environment:
+      - TRMNL_API_KEY=${TRMNL_API_KEY}
+      - TRMNL_API_URI=https://${TRMNL_DOMAIN}
+      - APP_PORT=2300
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.7
 
 networks:
   app_net:

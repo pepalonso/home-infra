@@ -1,0 +1,28 @@
+# Home Assistant Configuration
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 172.30.0.2 # Nginx
+    - 172.30.0.0/16 # Entire subnet
+    - 127.0.0.1
+    - ::1
+  ip_ban_enabled: false
+  cors_allowed_origins:
+    - https://ha.${DOMAIN}
+    - https://companion.home-assistant.io
+  server_host: 0.0.0.0
+  server_port: 8123
+
+# Enable default configuration
+default_config:
+
+# Enable mobile application integration
+mobile_app:
+
+# Basic configuration
+homeassistant:
+  name: Home
+  unit_system: metric
+  time_zone: Europe/Madrid
+  external_url: https://ha.${DOMAIN}
+  internal_url: http://172.30.0.4:8123

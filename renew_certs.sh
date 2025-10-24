@@ -18,5 +18,5 @@ docker-compose stop nginx
 # Renew the certificates quietly
 sudo certbot renew --quiet --cert-name "$DOMAIN"
 
-# Start the NGINX container again
-docker-compose start nginx
+# Restart the NGINX container to reload certificates
+docker-compose restart nginx

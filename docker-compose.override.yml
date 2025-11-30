@@ -23,13 +23,6 @@ services:
     environment:
       - TZ=Europe/Madrid
 
-  vaultwarden:
-    ports:
-      - "8081:80"
-    environment:
-      - DOMAIN=http://localhost:8081
-      - SIGNUPS_ALLOWED=true # Enable signups during development
-
   netdata:
     ports:
       - "19999:19999"

@@ -96,6 +96,18 @@ services:
       app_net:
         ipv4_address: 172.30.0.7
 
+  rtsp-security:
+    image: pepalonso/rtsp-security:latest
+    container_name: rtsp-security
+    restart: unless-stopped
+    volumes:
+      - ./rtsp-security/config.yaml:/app/config.yaml:ro
+      - ./rtsp-security/recordings:/app/recordings
+    command: ["-config", "/app/config.yaml"]
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.8
+
 networks:
   app_net:
     driver: bridge

@@ -19,3 +19,6 @@ config/homeassistant/configuration.yaml
 # Allow template files to be public
 !nginx/nginx.conf.template
 !config/homeassistant/configuration.yaml.template
+
+rtsp-security/recordings/
+rtsp-security/config.yaml

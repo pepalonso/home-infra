@@ -1,6 +1,6 @@
 # 🏠 HomeInfra - Personal Home Infrastructure
 
-A comprehensive Docker-based home infrastructure setup featuring Home Assistant, N8N automation, Vaultwarden password manager, Netdata monitoring, and more.
+A comprehensive Docker-based home infrastructure setup featuring Home Assistant, N8N automation, Netdata monitoring, and more.
 
 ## 📋 Table of Contents
 
@@ -19,7 +19,6 @@ This project provides a complete home infrastructure stack using Docker Compose,
 
 - **Home Assistant** - Smart home automation hub
 - **N8N** - Workflow automation platform
-- **Vaultwarden** - Password manager (Bitwarden-compatible)
 - **Netdata** - Real-time system monitoring
 - **Nginx** - Reverse proxy with SSL termination
 - **Terminus** - Terminal access
@@ -30,7 +29,6 @@ This project provides a complete home infrastructure stack using Docker Compose,
 | ------------------ | ---------- | --------------- | ------------------- |
 | **N8N**            | 8080       | 443 (via Nginx) | Workflow automation |
 | **Home Assistant** | 8123       | 443 (via Nginx) | Smart home hub      |
-| **Vaultwarden**    | 8081       | 443 (via Nginx) | Password manager    |
 | **Netdata**        | 19999      | 443 (via Nginx) | System monitoring   |
 | **Nginx**          | Disabled   | 80/443          | Reverse proxy       |
 
@@ -84,7 +82,6 @@ docker-compose up
 # Access services:
 # - N8N: http://localhost:8080
 # - Home Assistant: http://localhost:8123
-# - Vaultwarden: http://localhost:8081
 # - Netdata: http://localhost:19999
 ```
 
@@ -97,7 +94,6 @@ docker-compose -f docker-compose.yml up -d
 # Access via your domain with SSL
 # - N8N: https://n8n.your-domain.com
 # - Home Assistant: https://ha.your-domain.com
-# - Vaultwarden: https://vault.your-domain.com
 # - Netdata: https://analytics.your-domain.com
 ```
 
@@ -112,7 +108,6 @@ Create a `.env` file based on `.env.example`:
 DOMAIN=your-domain.com
 HA_DOMAIN=ha.your-domain.com
 N8N_DOMAIN=n8n.your-domain.com
-VAULTWARDEN_DOMAIN=vault.your-domain.com
 TRMNL_DOMAIN=trmnl.your-domain.com
 
 # Authentication Credentials
@@ -157,7 +152,6 @@ The Nginx configuration (`nginx/nginx.conf`) handles:
 
 - Services exposed directly on localhost
 - Nginx disabled
-- Vaultwarden signups enabled
 - Easy debugging and development
 
 ### Production Mode (`docker-compose.yml`)

@@ -104,7 +104,6 @@ services:
     volumes:
       - ./rtsp-security/config.yaml:/app/config.yaml:ro
       - ./rtsp-security/recordings:/app/recordings
-    command: ["-config", "/app/config.yaml"]
     networks:
       app_net:
         ipv4_address: 172.30.0.8

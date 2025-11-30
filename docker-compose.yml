@@ -98,6 +98,7 @@ services:
 
   rtsp-security:
     image: pepalonso/rtsp-security:latest
+    platform: linux/arm64
     container_name: rtsp-security
     restart: unless-stopped
     volumes:

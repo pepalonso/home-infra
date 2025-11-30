@@ -12,12 +12,12 @@ echo "�� Setting up HomeInfra configuration..."
 echo "�� Using domain: $DOMAIN"
 
 # Create nginx configuration from template
-if [ -f nginx/nginx.conf.template ]; then
+if [ -f nginx/nginx.config.template ]; then
     echo "📄 Generating nginx.conf from template..."
-    envsubst '$DOMAIN' < nginx/nginx.conf.template > nginx/nginx.conf
+    envsubst '$DOMAIN' < nginx/nginx.config.template > nginx/nginx.conf
     echo "✅ nginx.conf generated"
 else
-    echo "⚠️  nginx.conf.template not found, skipping..."
+    echo "⚠️  nginx.config.template not found, skipping..."
 fi
 
 # Create Home Assistant configuration from template

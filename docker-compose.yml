@@ -120,3 +120,4 @@ volumes:
   n8n_data:
   homeassistant_data:
   netdata_data:
+  trmnl_data:

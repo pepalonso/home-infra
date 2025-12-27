@@ -20,23 +20,23 @@ This project provides a complete home infrastructure stack using Docker Compose,
 - **Home Assistant** - Smart home automation hub
 - **N8N** - Workflow automation platform
 - **Netdata** - Real-time system monitoring
-- **Nginx** - Reverse proxy with SSL termination
+- **Cloudflare Tunnel** - Secure connection without open ports
 - **Terminus** - Terminal access
 
 ## 🚀 Services
 
-| Service            | Port (Dev) | Port (Prod)     | Description         |
-| ------------------ | ---------- | --------------- | ------------------- |
-| **N8N**            | 8080       | 443 (via Nginx) | Workflow automation |
-| **Home Assistant** | 8123       | 443 (via Nginx) | Smart home hub      |
-| **Netdata**        | 19999      | 443 (via Nginx) | System monitoring   |
-| **Nginx**          | Disabled   | 80/443          | Reverse proxy       |
+| Service            | Port (Dev) | Port (Prod)            | Description                 |
+| ------------------ | ---------- | ---------------------- | --------------------------- |
+| **N8N**            | 8080       | HTTPS (via Cloudflare) | Workflow automation         |
+| **Home Assistant** | 8123       | HTTPS (via Cloudflare) | Smart home hub              |
+| **Netdata**        | 19999      | HTTPS (via Cloudflare) | System monitoring           |
+| **Cloudflared**    | N/A        | N/A (no ports exposed) | Cloudflare Tunnel connector |
 
 ## 📋 Prerequisites
 
 - Docker and Docker Compose
-- A domain name (e.g., DuckDNS)
-- SSL certificates (Let's Encrypt recommended)
+- A domain name managed by Cloudflare
+- Cloudflare account (free tier works)
 - Basic knowledge of Docker and networking
 
 ## ⚡ Quick Start
@@ -62,16 +62,82 @@ cp .env.example .env
 ./setup.sh
 ```
 
-This will create your `nginx.conf` and `configuration.yaml` files from templates using your domain settings.
+This will create your `cloudflared/config.yml` and `configuration.yaml` files from templates using your domain settings.
 
-### 4. Set Up SSL Certificates
+### 4. Set Up Cloudflare Tunnel (CLI Method)
 
-```bash
-# Install certbot and obtain certificates
-sudo certbot certonly --standalone -d your-domain.com
-```
+1. **Install cloudflared:**
 
-### 5. Start the Services
+   ```bash
+   # On Linux (amd64)
+   wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+   chmod +x cloudflared-linux-amd64
+   sudo mv cloudflared-linux-amd64 /usr/local/bin/cloudflared
+
+   # Or use package manager (if available)
+   # For Debian/Ubuntu:
+   # wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+   # sudo dpkg -i cloudflared-linux-amd64.deb
+   ```
+
+2. **Authenticate cloudflared:**
+
+   ```bash
+   cloudflared tunnel login
+   ```
+
+   This will open a browser window. Log in to your Cloudflare account and authorize the connection.
+
+3. **Create the tunnel:**
+
+   ```bash
+   cloudflared tunnel create home-infra
+   ```
+
+   This will:
+
+   - Create a tunnel named "home-infra"
+   - Generate a credentials file at `~/.cloudflared/<tunnel-id>.json`
+   - Display the Tunnel ID (UUID format) - **note this down!**
+
+4. **Copy credentials file to project:**
+
+   ```bash
+   # Replace <tunnel-id> with the actual UUID shown in step 3
+   cp ~/.cloudflared/<tunnel-id>.json /home/pep/home-infra/cloudflared/credentials.json
+   ```
+
+   Or if you know the tunnel ID, you can use:
+
+   ```bash
+   cp ~/.cloudflared/$(cloudflared tunnel list | grep home-infra | awk '{print $1}').json \
+      /home/pep/home-infra/cloudflared/credentials.json
+   ```
+
+5. **Add Tunnel ID to `.env` file:**
+
+   ```bash
+   # Add this line to your .env file (replace with your actual Tunnel ID)
+   CLOUDFLARE_TUNNEL_ID=your-tunnel-id-here
+   ```
+
+   You can also get the tunnel ID with:
+
+   ```bash
+   cloudflared tunnel list
+   ```
+
+6. **Routes are configured in `cloudflared/config.yml`:**
+   - Routes are automatically generated from the template when you run `./setup.sh`
+   - The config file defines:
+     - `ha.your-domain.com` → `http://172.30.0.4:8123`
+     - `n8n.your-domain.com` → `http://172.30.0.3:5678`
+     - `analytics.your-domain.com` → `http://172.30.0.6:19999`
+   - Cloudflare will automatically create DNS records based on the config
+
+**📚 For detailed instructions, see [Cloudflare Tunnel CLI Documentation](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-local-tunnel/)**
+
+### 6. Start the Services
 
 #### Development Mode
 
@@ -88,10 +154,10 @@ docker-compose up
 #### Production Mode
 
 ```bash
-# Start services with Nginx reverse proxy
+# Start services with Cloudflare Tunnel
 docker-compose -f docker-compose.yml up -d
 
-# Access via your domain with SSL
+# Access via your domain with SSL (automatically handled by Cloudflare)
 # - N8N: https://n8n.your-domain.com
 # - Home Assistant: https://ha.your-domain.com
 # - Netdata: https://analytics.your-domain.com
@@ -110,6 +176,9 @@ HA_DOMAIN=ha.your-domain.com
 N8N_DOMAIN=n8n.your-domain.com
 TRMNL_DOMAIN=trmnl.your-domain.com
 
+# Cloudflare Tunnel (get Tunnel ID from Cloudflare Dashboard when creating tunnel)
+CLOUDFLARE_TUNNEL_ID=your_tunnel_id_here
+
 # Authentication Credentials
 N8N_BASIC_AUTH_USER=your_username
 N8N_BASIC_AUTH_PASSWORD=your_secure_password
@@ -120,31 +189,28 @@ NETDATA_BASIC_AUTH_PASSWORD=your_secure_password
 TRMNL_API_KEY=your_api_key
 ```
 
-### SSL Certificates
+### Cloudflare Tunnel Configuration
 
-The setup expects SSL certificates in `/etc/letsencrypt/live/your-domain.com/`:
+The Cloudflare Tunnel configuration (`cloudflared/config.yml`) handles:
 
-- `fullchain.pem` - Full certificate chain
-- `privkey.pem` - Private key
+- Secure connection to Cloudflare's network
+- Routing of subdomains to internal services (defined in config file)
+- Automatic SSL/TLS termination (handled by Cloudflare)
+
+**Note:**
+
+- SSL certificates are automatically managed by Cloudflare - no manual certificate setup required!
+- Routes are defined in `cloudflared/config.yml` (generated from template)
+- You need `cloudflared/credentials.json` file from Cloudflare Dashboard
 
 ### Configuration Templates
 
 The project uses template files that are processed with environment variables:
 
-- `nginx/nginx.conf.template` → `nginx/nginx.conf`
+- `cloudflared/config.yml` - Tunnel routing configuration
 - `config/homeassistant/configuration.yaml.template` → `config/homeassistant/configuration.yaml`
 
 Run `./setup.sh` to generate configuration files from templates.
-
-### Nginx Configuration
-
-The Nginx configuration (`nginx/nginx.conf`) handles:
-
-- SSL termination
-- Reverse proxy routing
-- Basic authentication
-- CORS headers
-- Security headers
 
 ## 🔄 Development vs Production
 
@@ -156,29 +222,33 @@ The Nginx configuration (`nginx/nginx.conf`) handles:
 
 ### Production Mode (`docker-compose.yml`)
 
-- Services behind Nginx reverse proxy
-- SSL termination
-- Basic authentication enabled
+- Services exposed via Cloudflare Tunnel
+- Automatic SSL/TLS (handled by Cloudflare)
+- Application-level authentication (N8N basic auth, HA login)
+- No open ports required
 - Optimized for security and performance
 
 ## 🔒 Security
 
 ### Included Security Features
 
-- SSL/TLS encryption
-- Basic authentication for sensitive services
-- Reverse proxy with security headers
+- SSL/TLS encryption (automatic via Cloudflare)
+- No open ports on your router/firewall
+- Application-level authentication (N8N basic auth, HA login)
 - Isolated Docker networks
 - Environment variable-based configuration
+- DDoS protection (via Cloudflare)
 
 ### Security Best Practices
 
 - ✅ Sensitive files excluded via `.gitignore`
 - ✅ Environment variables for credentials
-- ✅ SSL certificates properly configured
-- ✅ Basic authentication enabled
+- ✅ Cloudflare Tunnel credentials kept secure
+- ✅ Application authentication enabled
+- ✅ No direct exposure to internet
 - ⚠️ Regular security updates recommended
 - ⚠️ Strong passwords required
+- ⚠️ Keep `cloudflared/credentials.json` secure and never commit it
 
 ## 🔧 Troubleshooting
 
@@ -194,17 +264,26 @@ docker-compose ps
 docker-compose logs [service-name]
 ```
 
-**SSL certificate issues:**
+**Cloudflare Tunnel connection issues:**
 
 ```bash
-# Renew certificates
-sudo certbot renew --cert-name your-domain.com
+# Check tunnel logs
+docker-compose logs cloudflared
 
-# Check certificate validity
-openssl x509 -in /etc/letsencrypt/live/your-domain.com/fullchain.pem -text -noout
+# Verify tunnel ID is set correctly
+echo $CLOUDFLARE_TUNNEL_ID
+
+# Verify credentials file exists
+ls -la cloudflared/credentials.json
+
+# Verify config file is generated correctly
+cat cloudflared/config.yml
+
+# Test tunnel connectivity
+docker-compose exec cloudflared cloudflared tunnel info
 ```
 
-**Port conflicts:**
+**Port conflicts (development mode only):**
 
 ```bash
 # Check what's using a port
@@ -224,7 +303,7 @@ docker-compose logs
 docker-compose logs -f
 
 # View specific service logs
-docker-compose logs nginx
+docker-compose logs cloudflared
 docker-compose logs homeassistant
 ```
 

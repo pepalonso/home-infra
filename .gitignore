@@ -15,10 +15,13 @@ portfolio/node_modules/
 # Personal configuration files (keep private)
 nginx/nginx.conf
 config/homeassistant/configuration.yaml
+cloudflared/config.yml
+cloudflared/credentials.json
 
 # Allow template files to be public
 !nginx/nginx.conf.template
 !config/homeassistant/configuration.yaml.template
+!cloudflared/config.yml.template
 
 rtsp-security/recordings/
 rtsp-security/config.yaml

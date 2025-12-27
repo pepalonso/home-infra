@@ -11,13 +11,13 @@ DOMAIN=${DOMAIN:-your-domain.duckdns.org}
 echo "�� Setting up HomeInfra configuration..."
 echo "�� Using domain: $DOMAIN"
 
-# Create nginx configuration from template
-if [ -f nginx/nginx.config.template ]; then
-    echo "📄 Generating nginx.conf from template..."
-    envsubst '$DOMAIN' < nginx/nginx.config.template > nginx/nginx.conf
-    echo "✅ nginx.conf generated"
+# Create cloudflared configuration from template
+if [ -f cloudflared/config.yml.template ]; then
+    echo "📄 Generating cloudflared config.yml from template..."
+    envsubst '$DOMAIN $CLOUDFLARE_TUNNEL_ID' < cloudflared/config.yml.template > cloudflared/config.yml
+    echo "✅ cloudflared config.yml generated"
 else
-    echo "⚠️  nginx.config.template not found, skipping..."
+    echo "⚠️  cloudflared/config.yml.template not found, using existing config.yml..."
 fi
 
 # Create Home Assistant configuration from template
@@ -34,7 +34,9 @@ echo "🎉 Setup complete!"
 echo ""
 echo "📋 Next steps:"
 echo "1. Review the generated configuration files"
-echo "2. Set up SSL certificates for your domain"
-echo "3. Run: docker-compose up -d"
+echo "2. Set up Cloudflare Tunnel (see README.md for instructions)"
+echo "3. Add CLOUDFLARE_TUNNEL_ID to your .env file"
+echo "4. Place credentials.json in cloudflared/ directory"
+echo "5. Run: docker-compose up -d"
 echo ""
 echo "🔧 To customize further, edit your .env file and run this script again"

@@ -2,10 +2,12 @@
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 172.30.0.2 # Nginx
+    - 172.30.0.2 # Cloudflared
     - 172.30.0.0/16 # Entire subnet
     - 127.0.0.1
     - ::1
+    # Cloudflare IP ranges (optional, for additional security)
+    # See: https://www.cloudflare.com/ips/
   ip_ban_enabled: false
   cors_allowed_origins:
     - https://ha.${DOMAIN}
